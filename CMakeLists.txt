@@ -25,8 +25,6 @@ add_executable(MultivaluedHeuristicSearch src/main.cpp
         "include/data_structures/adjacency_matrix.h"
         src/data_structures/adjacency_matrix.cpp
         include/data_structures/node.h
-        include/driver_utils/run.h
-        src/driver_utils/run.cpp
         include/definitions.h
         include/data_structures/apex_path_pair.h
         src/data_structures/apex_path_pair.cpp
@@ -42,6 +40,10 @@ add_executable(MultivaluedHeuristicSearch src/main.cpp
         src/solvers/shortest_path_heuristic_computer.cpp
         src/data_structures/node.cpp
         test/solvers/test_apex.cpp
+        include/multivalued_heuristic/backward_search.h
+        src/multivalued_heuristic/backward_search.cpp
+        include/multivalued_heuristic/backward_search.h
+        test/multivalued_heuristic/test_backward_search.cpp
 )
 
 target_link_libraries(MultivaluedHeuristicSearch ${Boost_LIBRARIES})

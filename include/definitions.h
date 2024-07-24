@@ -21,6 +21,8 @@ std::ostream &operator<<(std::ostream &stream, const Pair<T> pair) {
 }
 
 using Heuristic = std::function<std::vector<float>(size_t)>;
+using MultiValuedHeuristic =
+    std::function<std::vector<std::vector<float>>(size_t)>;
 
 using EPS = std::vector<double>;
 
