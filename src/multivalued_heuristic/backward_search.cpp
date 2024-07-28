@@ -3,6 +3,7 @@
 //
 
 #include <assert.h>
+#include <iostream>
 #include <multivalued_heuristic/backward_search.h>
 
 #include <boost/mpl/assert.hpp>
@@ -90,7 +91,7 @@ BackwardSearch::operator()(const size_t &source, const size_t &target,
   NodePtr source_node = std::make_shared<Node>(source, std::vector<float>(2, 0),
                                                heuristic_to_target(source));
   ApexPathPairPtr ap = std::make_shared<ApexPathPair>(source_node, source_node,
-                                                      heuristic_to_target);
+                                                      heuristic_to_target(target));
   open.insert(ap);
 
   while (!open.empty()) {
@@ -120,7 +121,7 @@ BackwardSearch::operator()(const size_t &source, const size_t &target,
     const std::vector<Edge> &outgoing_edges = adj_matrix[ap->id];
     for (const auto &outgoing_edge : outgoing_edges) {
       ApexPathPairPtr next_ap =
-          std::make_shared<ApexPathPair>(ap, outgoing_edge);
+          std::make_shared<ApexPathPair>(ap, outgoing_edge, heuristic_to_target(outgoing_edge.target));
 
       if (is_dominated(next_ap)) {
         continue;
@@ -135,6 +136,11 @@ BackwardSearch::operator()(const size_t &source, const size_t &target,
     mvh_results.emplace(i, make_list_of_valeus(backward_search_solutions[i],
                                                heuristic_to_source(i)));
   }
+  std::vector<std::vector<float>> source_heuristic ={{0,0}};
+  for (auto &res: mvh_results[source]) {
+    std::cout << "(" << res[0] << "," << res[1] << ")" << std::endl;
+  }
+  mvh_results.emplace(source, source_heuristic);
 
   return [mvh_results](size_t vertex) -> std::vector<std::vector<float>> {
     return mvh_results.find(vertex)->second;

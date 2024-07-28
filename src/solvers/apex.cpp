@@ -82,7 +82,7 @@ void ApexSearch::operator()(const size_t &source, const size_t &target,
   NodePtr source_node = std::make_shared<Node>(source, std::vector<float>(2, 0),
                                                heuristic(source));
   ApexPathPairPtr ap =
-      std::make_shared<ApexPathPair>(source_node, source_node, heuristic);
+      std::make_shared<ApexPathPair>(source_node, source_node, heuristic(source));
   open.insert(ap);
 
   while (!open.empty()) {
@@ -117,7 +117,7 @@ void ApexSearch::operator()(const size_t &source, const size_t &target,
     const std::vector<Edge> &outgoing_edges = adj_matrix[ap->id];
     for (const auto &outgoing_edge : outgoing_edges) {
       ApexPathPairPtr next_ap =
-          std::make_shared<ApexPathPair>(ap, outgoing_edge);
+          std::make_shared<ApexPathPair>(ap, outgoing_edge, heuristic(outgoing_edge.target));
 
       if (is_dominated(next_ap)) {
         continue;

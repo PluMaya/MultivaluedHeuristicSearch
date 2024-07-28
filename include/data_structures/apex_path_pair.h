@@ -21,14 +21,14 @@ public:
   NodePtr parent;
   bool is_active = true;
 
-  const Heuristic &h;
+  const std::vector<float> h;
 
   ApexPathPair(const NodePtr &apex, const NodePtr &path_node,
-               const Heuristic &h)
+               const std::vector<float> &h)
       : id(apex->id), apex(apex), path_node(path_node),
         parent(path_node->parent), h(h){};
 
-  ApexPathPair(const ApexPathPairPtr &parent, const Edge &edge);
+  ApexPathPair(const ApexPathPairPtr &parent, const Edge &edge, const std::vector<float>& h);
 
   bool update_nodes_by_merge_if_bounded(const ApexPathPairPtr &other,
                                         const EPS &eps);

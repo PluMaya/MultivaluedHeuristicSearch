@@ -14,7 +14,7 @@ include_directories( ${Boost_INCLUDE_DIRS} )
 set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -pg")
 set(CMAKE_EXE_LINKER_FLAGS "${CMAKE_EXE_LINKER_FLAGS} -pg")
 
-set(CMAKE_CXX_STANDARD 14)
+set(CMAKE_CXX_STANDARD 17)
 
 add_executable(MultivaluedHeuristicSearch src/main.cpp
         src/utils.cpp
@@ -44,6 +44,9 @@ add_executable(MultivaluedHeuristicSearch src/main.cpp
         src/multivalued_heuristic/backward_search.cpp
         include/multivalued_heuristic/backward_search.h
         test/multivalued_heuristic/test_backward_search.cpp
+        include/multivalued_heuristic/forward_search.h
+        src/multivalued_heuristic/forward_search.cpp
+        test/multivalued_heuristic/test_forward_search.cpp
 )
 
 target_link_libraries(MultivaluedHeuristicSearch ${Boost_LIBRARIES})

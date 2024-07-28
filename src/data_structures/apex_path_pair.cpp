@@ -13,8 +13,8 @@ bool is_bounded(const NodePtr &apex, const NodePtr &node, const EPS &eps) {
   return true;
 }
 
-ApexPathPair::ApexPathPair(const ApexPathPairPtr &parent, const Edge &edge)
-    : id(edge.target), h(parent->h) {
+ApexPathPair::ApexPathPair(const ApexPathPairPtr &parent, const Edge &edge, const std::vector<float>& h)
+    : id(edge.target), h(h) {
   std::vector<float> new_apex_g(parent->apex->g);
   std::vector<float> new_g(parent->path_node->g);
 
@@ -22,9 +22,8 @@ ApexPathPair::ApexPathPair(const ApexPathPairPtr &parent, const Edge &edge)
     new_apex_g[i] += edge.cost[i];
     new_g[i] += edge.cost[i];
   }
-  auto new_h = h(id);
-  apex = std::make_shared<Node>(id, new_apex_g, new_h);
-  path_node = std::make_shared<Node>(id, new_g, new_h);
+  apex = std::make_shared<Node>(id, new_apex_g, h);
+  path_node = std::make_shared<Node>(id, new_g, h);
 }
 
 bool ApexPathPair::update_nodes_by_merge_if_bounded(
