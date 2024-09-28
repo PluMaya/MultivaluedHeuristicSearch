@@ -15,6 +15,8 @@
 #include "definitions.h"
 #include "solvers/apex.h"
 
+#include <cassert>
+
 #include <unordered_map>
 
 using BackwardSearchSolutionSet = std::unordered_map<size_t, ApexSolutionSet>;
@@ -39,13 +41,13 @@ public:
   virtual ~BackwardSearch() = default;
 
   virtual void insert(ApexPathPairPtr &ap, MapQueue &queue);
-  bool is_dominated(const ApexPathPairPtr &ap) const;
-  bool local_dominance_check(const ApexPathPairPtr &ap) const {
+  [[nodiscard]] bool is_dominated(const ApexPathPairPtr &ap) const;
+  [[nodiscard]] bool local_dominance_check(const ApexPathPairPtr &ap) const {
     return (ap->apex->g[1] >= min_g2[ap->id]);
   }
-  bool global_dominance_check(const ApexPathPairPtr &ap) const;
-  void merge_to_apex_list(const ApexPathPairPtr &ap,
-                          ApexSolutionSet &solutions) const;
+  [[nodiscard]] bool global_dominance_check(const ApexPathPairPtr &ap) const;
+  static void update_frontier(const ApexPathPairPtr &ap,
+                          ApexSolutionSet &frontier);
   BackwardSearch(const AdjacencyMatrix &adj_matrix, EPS eps);
   void set_min_g2(const ApexPathPairPtr &ap) {
     min_g2[ap->id] = ap->apex->g[1];

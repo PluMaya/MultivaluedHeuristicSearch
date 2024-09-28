@@ -13,7 +13,8 @@ bool is_bounded(const NodePtr &apex, const NodePtr &node, const EPS &eps) {
   return true;
 }
 
-ApexPathPair::ApexPathPair(const ApexPathPairPtr &parent, const Edge &edge, const std::vector<float>& h)
+ApexPathPair::ApexPathPair(const ApexPathPairPtr &parent, const Edge &edge,
+                           const std::vector<float> &h)
     : id(edge.target), h(h) {
   std::vector<float> new_apex_g(parent->apex->g);
   std::vector<float> new_g(parent->path_node->g);

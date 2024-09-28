@@ -41,7 +41,6 @@ void ApexSearch::merge_to_solutions(const ApexPathPairPtr &ap,
     }
   }
   solutions.push_back(ap);
-  set_min_g2(ap);
   last_solution = ap;
 }
 

@@ -18,7 +18,7 @@
 //       target, adjecency_matrix);
 //   std::cout << "finished creating heuristic" << std::endl;
 //
-//   auto apex = ApexSearch(adjecency_matrix, {0.1, 0.1});
+//   auto apex = ApexSearch(adjecency_matrix, {0, 0});
 //   std::vector<NodePtr> solutions;
 //   apex(source, target, h, solutions, 300);
 //   std::cout << "total time: " << (std::clock() - apex.start_time) << std::endl;

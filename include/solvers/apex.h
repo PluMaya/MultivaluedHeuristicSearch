@@ -8,6 +8,8 @@
 #include "data_structures/apex_path_pair.h"
 #include "data_structures/map_queue.h"
 
+#include <cassert>
+
 using ApexSolutionSet = std::vector<ApexPathPairPtr>;
 
 class ApexSearch : public AbstractSolver {
@@ -31,6 +33,7 @@ public:
                           ApexSolutionSet &solutions);
   ApexSearch(const AdjacencyMatrix &adj_matrix, const EPS &eps);
   void set_min_g2(const ApexPathPairPtr &ap) {
+    assert(ap->apex->g[1] < min_g2[ap->id]);
     min_g2[ap->id] = ap->apex->g[1];
   }
   void init_search() override;

@@ -1,9 +1,10 @@
 //
-// Created by crl on 27/07/2024.
+// Created by crl on 04/09/2024.
 //
 
-#ifndef FORWARD_SEARCH_H
-#define FORWARD_SEARCH_H
+#ifndef EXPERIMENTAL_FORWARD_SEARCH_H
+#define EXPERIMENTAL_FORWARD_SEARCH_H
+
 #include "data_structures/adjacency_matrix.h"
 #include "data_structures/apex_path_pair.h"
 #include "definitions.h"
@@ -22,19 +23,14 @@ struct CustomComparator {
 // Type alias for the set with the custom comparator
 using CustomSet = std::set<NodePtr, CustomComparator>;
 
-class ForwardSearch : public AbstractSolver {
+class ExperimentalForwardSearch : public AbstractSolver {
 public:
   static bool min_based_comp(const std::vector<float> &a,
                              const std::vector<float> &b);
-  size_t inconsistencis = 0;
-  size_t local_dominance_checks_invocations = 0;
-  size_t true_local_dominance_chekcs = 0;
-  size_t global_dominance_checks_invocations = 0;
-  size_t true_global_dominance_checks = 0;
   std::vector<std::vector<float>> min_g2;
   std::vector<CustomSet> pareto_list;
 
-  std::string get_solver_name() override { return "ForwardSearch"; }
+  std::string get_solver_name() override { return "ExperimentalForwardSearch"; }
 
   void operator()(const size_t &source, const size_t &target,
                   const MultiValuedHeuristic &heuristic,
@@ -46,24 +42,27 @@ public:
     std::cout << "not a real func " << std::endl;
   };
 
-  ForwardSearch(const AdjacencyMatrix &adj_matrix, const EPS &eps);
+  ExperimentalForwardSearch(const AdjacencyMatrix &adj_matrix, const EPS &eps);
+
+  [[nodiscard]] bool naive_local_dominance_check(const NodePtr &node_ptr);
 
   [[nodiscard]] bool local_dominance_check(const NodePtr &node_ptr);
 
-  [[nodiscard]] bool local_dominance_check_no_dr(const NodePtr &node_ptr);
-
-  [[nodiscard]] static bool global_dominance_check(const NodePtr &node_ptr,
-                                            const SolutionSet &solutions);
+  [[nodiscard]] static bool
+  naive_global_dominance_check(const NodePtr &node_ptr,
+                               const SolutionSet &solutions);
+  [[nodiscard]] static bool
+  global_dominance_check(const NodePtr &node_ptr, const SolutionSet &solutions);
 
   static bool comp(const std::vector<float> &a, const std::vector<float> &b);
+
+  std::optional<std::vector<float>> naive_get_first_undominated_heuristic_value(
+      const std::vector<float> &g_value, const size_t &target,
+      const std::vector<std::vector<float>> &node_mvh);
 
   std::optional<std::vector<float>> get_first_undominated_heuristic_value(
       const std::vector<float> &g_value, const size_t &target,
       const std::vector<std::vector<float>> &node_mvh);
-
-  std::optional<std::vector<float>> get_first_undominated_heuristic_value_naive(
-      const std::vector<float> &g_value, const size_t &target,
-      const std::vector<std::vector<float>> &node_mvh);
 };
 
-#endif // FORWARD_SEARCH_H
+#endif // EXPERIMENTAL_FORWARD_SEARCH_H

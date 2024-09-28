@@ -62,6 +62,6 @@ AdjacencyMatrix Parser::parse_graph(const std::string &coordinates_file,
       max_node_num = std::max({max_node_num, e.source, e.target});
     }
   }
-  return {max_node_num, edges};
+  return {max_node_num, edges, true};
 }
 

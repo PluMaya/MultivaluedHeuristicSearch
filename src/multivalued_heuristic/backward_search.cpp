@@ -40,19 +40,15 @@ bool BackwardSearch::global_dominance_check(const ApexPathPairPtr &ap) const {
   }
   return false;
 }
+
 BackwardSearch::BackwardSearch(const AdjacencyMatrix &adj_matrix, EPS eps)
     : adj_matrix(adj_matrix), eps(std::move(eps)) {
   expanded.resize(adj_matrix.size() + 1);
   min_g2.resize(adj_matrix.size() + 1, static_cast<float>(MAX_COST));
 }
-void BackwardSearch::merge_to_apex_list(const ApexPathPairPtr &ap,
-                                        ApexSolutionSet &solutions) const {
-  for (auto &solution : solutions) {
-    if (solution->update_nodes_by_merge_if_bounded(ap, eps)) {
-      return;
-    }
-  }
-  solutions.push_back(ap);
+void BackwardSearch::update_frontier(const ApexPathPairPtr &ap,
+                                     ApexSolutionSet &frontier) {
+  frontier.push_back(ap);
 }
 
 bool BackwardSearch::is_dominated(const ApexPathPairPtr &ap) const {
@@ -66,13 +62,19 @@ std::vector<std::vector<float>>
 make_list_of_valeus(const ApexSolutionSet &apex_solution_set,
                     const std::vector<float> &heuristic_value) {
   std::vector<std::vector<float>> result = {};
-  if (apex_solution_set.empty()) {
+  if (apex_solution_set.empty() || apex_solution_set.size() == 1) {
     result.push_back(heuristic_value);
   } else {
-    for (auto &solution : apex_solution_set) {
-      result.push_back(solution->apex->f);
-    }
-    result.back()[1] = heuristic_value[1];
+    // Perform satir operations on the result
+    for (int i = 0; i < apex_solution_set.size() - 1; i++) {
+
+        std::vector<float> solution_value = {
+            apex_solution_set[i]->apex->f[0] - apex_solution_set[i]->apex->h[0],
+            apex_solution_set[i + 1]->apex->f[1] - apex_solution_set[i + 1]->apex->h[1]};
+        result.push_back(solution_value);
+      }
+    result.at(0).at(0) = heuristic_value.at(0);
+    result.at(result.size() -1).at(1) = heuristic_value.at(1);
   }
   return result;
 }
@@ -84,14 +86,14 @@ BackwardSearch::operator()(const size_t &source, const size_t &target,
 
   start_time = std::clock();
 
-  BackwardSearchSolutionSet backward_search_solutions;
+  BackwardSearchSolutionSet frontiers;
 
   MapQueue open(adj_matrix.size() + 1);
 
   NodePtr source_node = std::make_shared<Node>(source, std::vector<float>(2, 0),
                                                heuristic_to_target(source));
-  ApexPathPairPtr ap = std::make_shared<ApexPathPair>(source_node, source_node,
-                                                      heuristic_to_target(target));
+  ApexPathPairPtr ap = std::make_shared<ApexPathPair>(
+      source_node, source_node, heuristic_to_target(target));
   open.insert(ap);
 
   while (!open.empty()) {
@@ -111,7 +113,7 @@ BackwardSearch::operator()(const size_t &source, const size_t &target,
     num_expansion += 1;
 
     expanded[ap->id].push_back(ap);
-    merge_to_apex_list(ap, backward_search_solutions[ap->id]);
+    update_frontier(ap, frontiers[ap->id]);
 
     if (ap->id == target) {
       last_solution = ap;
@@ -120,8 +122,8 @@ BackwardSearch::operator()(const size_t &source, const size_t &target,
 
     const std::vector<Edge> &outgoing_edges = adj_matrix[ap->id];
     for (const auto &outgoing_edge : outgoing_edges) {
-      ApexPathPairPtr next_ap =
-          std::make_shared<ApexPathPair>(ap, outgoing_edge, heuristic_to_target(outgoing_edge.target));
+      ApexPathPairPtr next_ap = std::make_shared<ApexPathPair>(
+          ap, outgoing_edge, heuristic_to_target(outgoing_edge.target));
 
       if (is_dominated(next_ap)) {
         continue;
@@ -132,15 +134,10 @@ BackwardSearch::operator()(const size_t &source, const size_t &target,
   }
 
   std::unordered_map<size_t, std::vector<std::vector<float>>> mvh_results;
-  for (size_t i = 0; i < adj_matrix.size(); ++i) {
-    mvh_results.emplace(i, make_list_of_valeus(backward_search_solutions[i],
-                                               heuristic_to_source(i)));
+  for (size_t i = 0; i < adj_matrix.size() + 1; ++i) {
+    mvh_results.emplace(
+        i, make_list_of_valeus(frontiers[i], heuristic_to_source(i)));
   }
-  std::vector<std::vector<float>> source_heuristic ={{0,0}};
-  for (auto &res: mvh_results[source]) {
-    std::cout << "(" << res[0] << "," << res[1] << ")" << std::endl;
-  }
-  mvh_results.emplace(source, source_heuristic);
 
   return [mvh_results](size_t vertex) -> std::vector<std::vector<float>> {
     return mvh_results.find(vertex)->second;
