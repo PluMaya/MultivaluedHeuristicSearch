@@ -7,25 +7,23 @@
 
 #include <data_structures/adjacency_matrix.h>
 
+#include <utility>
+
+inline std::string DEFAULT_FILES_DIRECTORY = "C:/Users/crl/CLionProjects/MultivaluedHeuristicSearch/resources/NYC";
+
 class Parser {
 public:
-  std::string default_coordinates_filename =
-      "C:/Users/crl/CLionProjects/MultivaluedHeuristicSearch/resources/NYC/"
-      "USA-road-d.NY.co";
-  std::string default_distances_filename =
-      "C:/Users/crl/CLionProjects/MultivaluedHeuristicSearch/resources/NYC/"
-      "USA-road-d.NY.gr";
-  std::string default_times_filename =
-      "C:/Users/crl/CLionProjects/MultivaluedHeuristicSearch/resources/NYC/"
-      "USA-road-t.NY.gr";
-  Parser() = default;
-  static AdjacencyMatrix parse_graph(const std::string &coordinates_file,
-                                     const std::string &distances_filename,
-                                     const std::string &times_filename);
+  std::string files_directory;
 
-  AdjacencyMatrix default_graph() const {
-    return parse_graph(default_coordinates_filename, default_distances_filename,
-                       default_times_filename);
+  explicit Parser(std::string files_directory)
+      : files_directory(std::move(files_directory)) {}
+  explicit Parser()
+      : files_directory(DEFAULT_FILES_DIRECTORY) {}
+
+  static AdjacencyMatrix parse_graph(const std::string &default_files_directory);
+
+  [[nodiscard]] AdjacencyMatrix default_graph() const {
+    return parse_graph(files_directory);
   }
 };
 

@@ -22,6 +22,7 @@ public:
   std::clock_t start_time = std::clock(); // TODO: see that it is changed later
   size_t num_expansion = 0;
   size_t num_generation = 0;
+  float runtime = 0.0f;
 
   virtual void init_search() {
     num_expansion = 0;

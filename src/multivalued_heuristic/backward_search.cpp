@@ -133,13 +133,14 @@ BackwardSearch::operator()(const size_t &source, const size_t &target,
     }
   }
 
-  std::unordered_map<size_t, std::vector<std::vector<float>>> mvh_results;
+  std::vector<std::vector<std::vector<float>>> mvh_results(adj_matrix.size() + 1);
   for (size_t i = 0; i < adj_matrix.size() + 1; ++i) {
-    mvh_results.emplace(
-        i, make_list_of_valeus(frontiers[i], heuristic_to_source(i)));
+    mvh_results[i] = make_list_of_valeus(frontiers[i], heuristic_to_source(i));
   }
 
+  runtime = static_cast<float>(std::clock() - start_time);
   return [mvh_results](size_t vertex) -> std::vector<std::vector<float>> {
-    return mvh_results.find(vertex)->second;
+    return mvh_results[vertex];
   };
+
 }

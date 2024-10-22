@@ -71,4 +71,6 @@ void BOAStar::operator()(const size_t &source, const size_t &target,
     }
     closed.push_back(node);
   }
+
+  runtime = static_cast<float>(std::clock() - start_time);
 }

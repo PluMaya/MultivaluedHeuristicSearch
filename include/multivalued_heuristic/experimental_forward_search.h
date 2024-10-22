@@ -9,6 +9,8 @@
 #include "data_structures/apex_path_pair.h"
 #include "definitions.h"
 #include "solvers/abstract_solver.h"
+
+#include <chrono>
 #include <ctime>
 #include <iostream>
 #include <optional>
@@ -29,6 +31,7 @@ public:
                              const std::vector<float> &b);
   std::vector<std::vector<float>> min_g2;
   std::vector<CustomSet> pareto_list;
+  std::unordered_map<std::string, std::chrono::duration<long long, std::ratio<1, 1000000000>>> time_map;
 
   std::string get_solver_name() override { return "ExperimentalForwardSearch"; }
 
@@ -48,11 +51,12 @@ public:
 
   [[nodiscard]] bool local_dominance_check(const NodePtr &node_ptr);
 
-  [[nodiscard]] static bool
+  [[nodiscard]] bool
   naive_global_dominance_check(const NodePtr &node_ptr,
                                const SolutionSet &solutions);
-  [[nodiscard]] static bool
-  global_dominance_check(const NodePtr &node_ptr, const SolutionSet &solutions);
+
+  bool global_dominance_check(const NodePtr &node_ptr,
+                              const size_t &target_id);
 
   static bool comp(const std::vector<float> &a, const std::vector<float> &b);
 

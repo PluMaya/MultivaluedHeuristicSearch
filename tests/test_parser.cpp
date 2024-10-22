@@ -3,26 +3,14 @@
 //
 
 #include "data_structures/adjacency_matrix.h"
+#include "doctest.h"
 #include "parser.h"
 
 #include <sstream>
 
-void test_parser_doesnt_crash() {
+TEST_CASE("test parser doesnt crash") {
   // Simulate input file content
-  std::string coordinates_filename =
-      "C:/Users/crl/CLionProjects/MultivaluedHeuristicSearch/resources/NYC/"
-      "USA-road-d.NY.co";
-  std::string distances_filename =
-      "C:/Users/crl/CLionProjects/MultivaluedHeuristicSearch/resources/NYC/"
-      "USA-road-d.NY.gr";
-  std::string times_filename =
-      "C:/Users/crl/CLionProjects/MultivaluedHeuristicSearch/resources/NYC/"
-      "USA-road-t.NY.gr";
-  AdjacencyMatrix adjecency_matrix = Parser::parse_graph(
-      coordinates_filename, distances_filename, times_filename);
+  const auto parser = Parser();
+  AdjacencyMatrix adjecency_matrix = parser.default_graph();
+  CHECK(adjecency_matrix.size() != 0);
 }
-
-// int main() {
-//   test_parser_doesnt_crash();
-//   return 0;
-// }

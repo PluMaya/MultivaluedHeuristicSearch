@@ -129,4 +129,5 @@ void ApexSearch::operator()(const size_t &source, const size_t &target,
   for (auto &ap_solution : ap_solutions) {
     solutions.push_back(ap_solution->path_node);
   }
+  runtime = static_cast<float>(std::clock() - start_time);
 }

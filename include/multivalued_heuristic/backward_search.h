@@ -5,7 +5,6 @@
 #ifndef BACKWARD_SEARCH_H
 #define BACKWARD_SEARCH_H
 
-#include <algorithm>
 #include <ctime>
 
 #include "data_structures/adjacency_matrix.h"
@@ -15,7 +14,6 @@
 #include "definitions.h"
 #include "solvers/apex.h"
 
-#include <cassert>
 
 #include <unordered_map>
 
@@ -29,6 +27,7 @@ public:
   std::clock_t start_time = std::clock();
   size_t num_expansion = 0;
   size_t num_generation = 0;
+  float runtime = 0.0f;
 
   std::vector<float> min_g2;
   std::vector<std::vector<ApexPathPairPtr>> expanded;
