@@ -2,11 +2,9 @@
 // Created by crl on 22/07/2024.
 //
 
-#include <assert.h>
 #include <iostream>
 #include <multivalued_heuristic/backward_search.h>
 
-#include <boost/mpl/assert.hpp>
 #include <utility>
 
 void BackwardSearch::insert(ApexPathPairPtr &ap, MapQueue &queue) {
@@ -116,7 +114,7 @@ BackwardSearch::operator()(const size_t &source, const size_t &target,
     update_frontier(ap, frontiers[ap->id]);
 
     if (ap->id == target) {
-      last_solution = ap;
+      last_solution = move(ap);
       continue;
     }
 
@@ -139,8 +137,10 @@ BackwardSearch::operator()(const size_t &source, const size_t &target,
   }
 
   runtime = static_cast<float>(std::clock() - start_time);
-  return [mvh_results](size_t vertex) -> std::vector<std::vector<float>> {
-    return mvh_results[vertex];
-  };
-
+  // int vector_size = 0;
+  // for (const auto &vec : mvh_results) {
+  //   vector_size += vec.size() * sizeof(float) * 2;
+  // }
+  // std::cout << "Memory usage: " << vector_size << std::endl;
+  return mvh_results;
 }

@@ -27,7 +27,7 @@ compute_single_cost(const size_t &source,
                     const AdjacencyMatrix &adjacency_matrix,
                     const int cost_idx) {
   size_t V = adjacency_matrix.size() + 1;
-  std::vector<float> dist(V, static_cast<float>(INT_MAX));
+  std::vector<float> dist(V, static_cast<float>(99999999999));
   std::vector<size_t> parent(V, -1);
   std::priority_queue<std::pair<float, size_t>,
                       std::vector<std::pair<float, size_t>>, PairComparator>
@@ -42,7 +42,7 @@ compute_single_cost(const size_t &source,
 
     for (auto edge : adjacency_matrix[u]) {
       float move_cost = dist[edge.source] + edge.cost.at(cost_idx);
-      if (move_cost < INT_MAX && move_cost < dist[edge.target]) {
+      if (move_cost < 9999999999 && move_cost < dist[edge.target]) {
         dist[edge.target] = move_cost;
         pq.emplace(dist[edge.target], edge.target);
         parent[edge.target] = u;

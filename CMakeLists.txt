@@ -3,18 +3,13 @@ project(MultivaluedHeuristicSearch)
 
 set(CMAKE_CXX_STANDARD 17)
 
-
-set(BOOST_ROOT "C:/boost")
-set(BOOST_INCLUDEDIR "${BOOST_ROOT}/include")
-set(BOOST_LIBRARYDIR "${BOOST_ROOT}/lib")
-
 # Find Boost
 find_package(Boost REQUIRED COMPONENTS program_options log thread filesystem system)
 include_directories(${Boost_INCLUDE_DIRS})
 
-
-set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -pg")
-set(CMAKE_EXE_LINKER_FLAGS "${CMAKE_EXE_LINKER_FLAGS} -pg")
+# Enable profiling
+set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -pg -g")
+#set(CMAKE_EXE_LINKER_FLAGS "${CMAKE_EXE_LINKER_FLAGS} -pg")
 
 include_directories("include")
 

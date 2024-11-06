@@ -44,7 +44,7 @@ void ExperimentUtils::run_backward_search(
   MultiValuedHeuristic mvh =
       backward_search(source, target, source_to_target, target_to_source);
   std::cout << "BS"
-            << "\t" << source << "\t" << target << "\t" << mvh(target).size()
+            << "\t" << source << "\t" << target << "\t" << mvh[target].size()
             << "\t" << backward_search.num_expansion << "\t"
             << backward_search.num_generation << "\t" << backward_search.runtime
             << std::endl;

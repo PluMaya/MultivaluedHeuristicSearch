@@ -11,7 +11,6 @@
 #include "solvers/abstract_solver.h"
 
 #include <chrono>
-#include <ctime>
 #include <iostream>
 #include <optional>
 #include <set>
@@ -49,6 +48,7 @@ public:
 
   [[nodiscard]] bool naive_local_dominance_check(const NodePtr &node_ptr);
 
+  [[nodiscard]] bool better_local_dominance_check(const NodePtr &node_ptr);
   [[nodiscard]] bool local_dominance_check(const NodePtr &node_ptr);
 
   [[nodiscard]] bool
@@ -61,8 +61,8 @@ public:
   static bool comp(const std::vector<float> &a, const std::vector<float> &b);
 
   std::optional<std::vector<float>> naive_get_first_undominated_heuristic_value(
-      const std::vector<float> &g_value, const size_t &target,
-      const std::vector<std::vector<float>> &node_mvh);
+    const std::vector<float> &g_value, const size_t &target,
+    const std::vector<std::vector<float>> &node_mvh, const std::vector<float>& parent_h, const std::vector<float>& edge_cost);
 
   std::optional<std::vector<float>> get_first_undominated_heuristic_value(
       const std::vector<float> &g_value, const size_t &target,

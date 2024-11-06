@@ -6,6 +6,7 @@
 #define PARSER_H
 
 #include <data_structures/adjacency_matrix.h>
+#include <string>
 
 #include <utility>
 

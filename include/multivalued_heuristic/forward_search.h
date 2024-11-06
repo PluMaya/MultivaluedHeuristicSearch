@@ -8,7 +8,6 @@
 #include "data_structures/apex_path_pair.h"
 #include "definitions.h"
 #include "solvers/abstract_solver.h"
-#include <ctime>
 #include <iostream>
 #include <optional>
 #include <set>

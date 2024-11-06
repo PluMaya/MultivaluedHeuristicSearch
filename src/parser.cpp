@@ -9,8 +9,8 @@
 #include <iostream>
 
 AdjacencyMatrix Parser::parse_graph(const std::string &default_files_directory) {
-   std::string distances_filename = default_files_directory + "\\distances.gr";
-   std::string times_filename = default_files_directory + "\\times.gr";
+   std::string distances_filename = default_files_directory + "/distances.gr";
+   std::string times_filename = default_files_directory + "/times.gr";
   std::ifstream distances_infile(distances_filename);
   if (!distances_infile) {
     std::cerr << "Error opening file: " << distances_filename << std::endl;

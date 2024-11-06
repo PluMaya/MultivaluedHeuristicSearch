@@ -263,8 +263,8 @@ void ForwardSearch::operator()(const size_t &source, const size_t &target,
 
   std::priority_queue<NodePtr, std::vector<NodePtr>, CompareNodeByFValue> open;
 
-  auto source_heuristic_value = heuristic(source)[0];
-  NodePtr source_node = std::make_shared<Node>(source, std::vector<float>(2, 0),
+  auto source_heuristic_value = heuristic[source][0];
+  NodePtr source_node = std::make_unique<Node>(source, std::vector<float>(2, 0),
                                                source_heuristic_value);
   open.push(source_node);
 
@@ -280,7 +280,7 @@ void ForwardSearch::operator()(const size_t &source, const size_t &target,
 
     if (global_dominance_check(node, solutions)) {
       if (auto new_heuristic_value = get_first_undominated_heuristic_value(
-              node->g, target, heuristic(node->id))) {
+              node->g, target, heuristic[node->id])) {
         NodePtr new_node = std::make_shared<Node>(
             node->id, node->g, new_heuristic_value.value(), node);
         open.push(new_node);
@@ -304,7 +304,7 @@ void ForwardSearch::operator()(const size_t &source, const size_t &target,
         new_g[i] += outgoing_edge.cost[i];
       }
       auto new_h = get_first_undominated_heuristic_value(
-          new_g, target, heuristic(outgoing_edge.target));
+          new_g, target, heuristic[outgoing_edge.target]);
 
       if (new_h == std::nullopt) {
         continue;
