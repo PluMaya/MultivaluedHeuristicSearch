@@ -34,45 +34,29 @@ bool ApexPathPair::update_nodes_by_merge_if_bounded(
     return false;
   }
 
-  NodePtr new_apex =
-      std::make_shared<Node>(this->apex->id, this->apex->g, this->apex->h);
+  std::vector f_value = {std::min(apex->f[0], other->apex->f[0]), std::min(apex->f[1], other->apex->f[1])};
 
-  // Merge apex
-  for (int i = 0; i < other->apex->g.size(); i++) {
-    if (other->apex->g[i] < new_apex->g[i]) {
-      new_apex->g[i] = other->apex->g[i];
-      new_apex->f[i] = other->apex->f[i];
-    }
-  }
-
-  if (!is_bounded(new_apex, path_node, eps)) {
+  // apex is not bunded
+  if (path_node->f[0] > (1 + eps[0]) * f_value[0] or path_node->f[1] > (1 + eps[1]) * f_value[1]) {
     return false;
   }
 
-  this->apex = new_apex;
+  this->apex->g = {std::min(apex->g[0], other->apex->g[0]), std::min(apex->g[1], other->apex->g[1])};
+  this->apex->f = {std::min(apex->f[0], other->apex->f[0]), std::min(apex->f[1], other->apex->f[1])};
   return true;
 }
 
 bool ApexPathPair::update_apex_by_merge_if_bounded(
     const NodePtr &other_apex, const std::vector<double> &eps) {
-  NodePtr new_apex =
-      std::make_shared<Node>(this->apex->id, this->apex->g, this->apex->h);
-  bool update_flag = false;
-
-  // Merge apex
-  for (int i = 0; i < other_apex->g.size(); i++) {
-    if (other_apex->f[i] < new_apex->f[i]) {
-      new_apex->g[i] = other_apex->g[i];
-      new_apex->f[i] = other_apex->f[i];
-      if (path_node->f[i] > (1 + eps[i]) * new_apex->f[i]) {
-        return false;
-      }
-
-      update_flag = true;
-    }
+  std::vector<float> f = {std::min(apex->f[0], other_apex->f[0]),
+            std::min(apex->f[1], other_apex->f[1])};
+  if (path_node->f[0] > (1 + eps[0]) * f[0] or path_node->f[1] > (1 + eps[1]) * f[1]) {
+    return false;
   }
-  if (update_flag) {
-    apex = new_apex;
-  }
+
+  apex->f = f;
+  apex->g = {std::min(apex->g[0], other_apex->g[0]),
+            std::min(apex->g[1], other_apex->g[1])};
   return true;
 }
+

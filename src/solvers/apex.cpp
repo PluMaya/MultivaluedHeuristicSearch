@@ -85,12 +85,6 @@ void ApexSearch::operator()(const size_t &source, const size_t &target,
   open.insert(ap);
 
   while (!open.empty()) {
-    if ((std::clock() - start_time) / CLOCKS_PER_SEC > time_limit) {
-      for (auto &ap_solution : ap_solutions) {
-        solutions.push_back(ap_solution->path_node);
-      }
-      return;
-    }
     ap = open.pop();
     num_generation += 1;
 

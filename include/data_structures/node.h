@@ -20,7 +20,7 @@ public:
   std::vector<float> g;
   std::vector<float> h;
   std::vector<float> f;
-  const NodePtr& parent;
+  NodePtr parent;
   const std::vector<float>& c;
 
   /**
@@ -32,8 +32,8 @@ public:
    * @param parent the parent of a node
    */
   Node(const size_t id, const std::vector<float> &g,
-       const std::vector<float> &h, const NodePtr& parent = nullptr, const std::vector<float> &c = std::vector<float>(2, 0 ))
-      : id(id), g(g), h(h), f(g.size()), parent(parent), c(c){
+       const std::vector<float> &h, NodePtr parent = nullptr, const std::vector<float> &c = std::vector<float>(2, 0 ))
+      : id(id), g(g), h(h), f(g.size()), parent(std::move(parent)), c(c){
     for (int i = 0; i < g.size(); i++) {
       f[i] = g[i] + h[i];
     }
