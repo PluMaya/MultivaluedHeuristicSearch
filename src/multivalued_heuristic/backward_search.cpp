@@ -128,8 +128,6 @@ BackwardSearch::operator()(const size_t& source, const size_t& target,
         source_node, source_node, heuristic_to_target(target));
     open.insert(ap);
 
-    float f1 = 0;
-    float f2 = 1e10;
     while (!open.empty()) {
         ap = open.pop();
         num_generation += 1;
@@ -137,11 +135,6 @@ BackwardSearch::operator()(const size_t& source, const size_t& target,
         if (ap->is_active == false) {
             continue;
         }
-        if (ap->apex->f[0] < f1) {
-            std::cout << "oh no" << std::endl;
-        }
-        f1 = ap->apex->f[0];
-
         if (is_dominated(ap)) {
             continue;
         }
@@ -181,16 +174,16 @@ BackwardSearch::operator()(const size_t& source, const size_t& target,
         }
     }
 
-    for (auto solution : frontiers[target]) {
-        std::vector solution_value = {
-            solution->apex->f[0] - solution->apex->h[0], solution->apex->f[1] - solution->apex->h[1]
-        };
-        std::vector node_vale = {
-            solution->path_node->f[0] - solution->path_node->h[0], solution->path_node->f[1] - solution->path_node->h[1]
-        };
-        std::cout << solution_value[0] << " " << solution_value[1] << "\t" <<
-            node_vale[0] << " " << node_vale[1] << std::endl;
-    }
+    // for (auto solution : frontiers[target]) {
+    //     std::vector solution_value = {
+    //         solution->apex->f[0] - solution->apex->h[0], solution->apex->f[1] - solution->apex->h[1]
+    //     };
+    //     std::vector node_vale = {
+    //         solution->path_node->f[0] - solution->path_node->h[0], solution->path_node->f[1] - solution->path_node->h[1]
+    //     };
+    //     std::cout << solution_value[0] << " " << solution_value[1] << "\t" <<
+    //         node_vale[0] << " " << node_vale[1] << std::endl;
+    // }
 
     std::vector<std::vector<std::vector<float>>> mvh_results(adj_matrix.size() + 1);
     for (size_t i = 0; i < adj_matrix.size() + 1; ++i) {

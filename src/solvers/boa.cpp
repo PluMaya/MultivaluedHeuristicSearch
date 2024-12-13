@@ -2,6 +2,7 @@
 // Created by crl on 14/07/2024.
 //
 
+#include <fstream>
 #include <iostream>
 #include <queue>
 #include <solvers/boa.h>
@@ -20,6 +21,9 @@ void BOAStar::operator()(const size_t& source, const size_t& target,
     std::vector<float> min_g2(adj_matrix.size() + 1,
                               static_cast<float>(MAX_COST));
 
+    std::vector expanded(adj_matrix.size() + 1, 0);
+    std::vector generated(adj_matrix.size() + 1, 0);
+
     // Init open heap
     std::priority_queue<NodePtr, std::vector<NodePtr>, CompareNodeByFValue> open;
 
@@ -36,6 +40,7 @@ void BOAStar::operator()(const size_t& source, const size_t& target,
         node = open.top();
         open.pop();
         num_generation += 1;
+        generated[node->id] += 1;
 
         // Dominance check
         if ((node->f[1]) >= min_g2[target] ||
@@ -46,6 +51,7 @@ void BOAStar::operator()(const size_t& source, const size_t& target,
 
         min_g2[node->id] = node->g[1];
         num_expansion += 1;
+        expanded[node->id] += 1;
 
         if (node->id == target) {
             solutions.push_back(node);
@@ -76,9 +82,14 @@ void BOAStar::operator()(const size_t& source, const size_t& target,
         closed.push_back(node);
     }
 
-    for (auto solution : solutions) {
-        std::cout << solution->g[0] << " " << solution->g[1] << std::endl;
+    std::ofstream PlotOutput("boa.txt");
+
+    for (int i = 1; i < adj_matrix.size() + 1; i++) {
+        PlotOutput << i << "\t" << generated[i] << "\t" << expanded[i] << std::endl;
     }
+
+    // Close the file
+    PlotOutput.close();
 
     runtime = static_cast<float>(std::clock() - start_time);
 }

@@ -8,6 +8,7 @@
 
 #include <cassert>
 #include <chrono>
+#include <fstream>
 #include <optional>
 
 int k = 0;
@@ -49,7 +50,6 @@ bool ExperimentalForwardSearch::better_local_dominance_check(
     // if the node in g2-min has a larger g[0] value than the current node,
     // we need to be careful and perform a full dominance check (without dr)
     if (min_g2[node_ptr->id][0] > node_ptr->g[0]) {
-        k += 1;
         // g2 larger equal, g1 smaller
         for (auto& pareto_list_id_element : pareto_list[node_ptr->id]) {
             if (pareto_list_id_element->g[0] <= node_ptr->g[0] &&
@@ -140,10 +140,7 @@ ExperimentalForwardSearch::naive_get_first_undominated_heuristic_value(
             heuristic[1] + g_value[1]
         };
         if (new_value[1] < min_g2[target][1]) {
-            if (heuristic[0] + edge_cost[0] < parent_h[0] or (heuristic[0] + edge_cost[0] == parent_h[0] and heuristic[
-                1] + edge_cost[1] < parent_h[1])) {
-                continue;
-            }
+
             return std::optional{heuristic};
         }
     }
@@ -198,7 +195,8 @@ void ExperimentalForwardSearch::operator()(
     init_search();
     start_time = std::clock();
     std::priority_queue<NodePtr, std::vector<NodePtr>, CompareNodeByFValue> open;
-
+    std::vector generated(adj_matrix.size() + 1, 0);
+    std::vector expanded(adj_matrix.size() + 1, 0);
     auto cur_heuristic = heuristic[source];
 
     auto source_heuristic_value = cur_heuristic[0];
@@ -212,11 +210,13 @@ void ExperimentalForwardSearch::operator()(
         open.pop();
         num_generation += 1;
 
-        if (node->id != source and !(node->parent->f[0] < node->f[0] or (node->parent->f[0] == node->f[0] and node->
-            parent->f[1] <= node->f[1]))) {
-            std::cout << node->parent->f[0] << ", " << node->parent->f[1] << "    " << node->f[0] << ", " << node->f[1]
-                << std::endl;
-        }
+        generated[node->id] += 1;
+
+        // if (node->id != source and !(node->parent->f[0] < node->f[0] or (node->parent->f[0] == node->f[0] and node->
+        //     parent->f[1] <= node->f[1]))) {
+        //     std::cout << node->parent->f[0] << ", " << node->parent->f[1] << "    " << node->f[0] << ", " << node->f[1]
+        //         << std::endl;
+        // }
 
         // assert lemma 2
         // if (node->f[0] < f1) {
@@ -243,6 +243,7 @@ void ExperimentalForwardSearch::operator()(
 
         min_g2[node->id] = std::min(min_g2[node->id], node->g, min_based_comp);
         num_expansion += 1;
+        expanded[node->id] += 1;
 
         pareto_list[node->id].insert(node);
 
@@ -276,6 +277,18 @@ void ExperimentalForwardSearch::operator()(
             open.push(successor_node);
         }
     }
+
+
+    std::ofstream PlotOutput("forward_search.txt");
+
+    for (int i = 1; i < adj_matrix.size() + 1; i++) {
+        PlotOutput << i << "\t" << generated[i] << "\t" << expanded[i] << std::endl;
+    }
+
+    // Close the file
+    PlotOutput.close();
+
+
     runtime = static_cast<float>(std::clock() - start_time);
     // std::cout << k << std::endl;
 }

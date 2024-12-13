@@ -13,6 +13,8 @@
 #include <fstream>
 #include <iostream>
 
+#include "multivalued_heuristic/edge_based_backward_search.h"
+
 void ExperimentUtils::run_boa_star(const AdjacencyMatrix& adjecency_matrix,
                                    const size_t& source, const size_t& target,
                                    const Heuristic& heuristic, const clock_t heuristic_runtime) {
@@ -51,6 +53,20 @@ void ExperimentUtils::run_backward_search(
         << std::endl;
 }
 
+void ExperimentUtils::run_edge_based_backward_search(
+    const AdjacencyMatrix& adjecency_matrix, const size_t& source,
+    const size_t& target, const Heuristic& source_to_target,
+    const Heuristic& target_to_source, bool global_stop_condition) {
+    auto edge_based_backward_search = EdgeBasedBackwardSearch(adjecency_matrix);
+    MultiValuedHeuristic mvh =
+        edge_based_backward_search(source, target, source_to_target, target_to_source, global_stop_condition);
+    std::cout << "EBBS"
+        << "\t" << source << "\t" << target << "\t" << mvh[target].size()
+        << "\t" << edge_based_backward_search.num_expansion << "\t"
+        << edge_based_backward_search.num_generation << "\t" << edge_based_backward_search.runtime
+        << std::endl;
+}
+
 void ExperimentUtils::run_forward_search(
     const AdjacencyMatrix& adjecency_matrix, const size_t& source,
     const size_t& target, const EPS& eps, const MultiValuedHeuristic& mvh, const float backward_search_runtime, const
@@ -78,10 +94,10 @@ void ExperimentUtils::single_run(AdjacencyMatrix& adjecency_matrix,
     if (algorithm == "BOA") {
         auto heuristic_start_time = std::clock();
         Heuristic heuristic =
-    ShortestPathHeuristicComputer::compute_ideal_point_heuristic(
-        target, adjecency_matrix);
+            ShortestPathHeuristicComputer::compute_ideal_point_heuristic(
+                target, adjecency_matrix);
         auto heuristic_duration = static_cast<long>(std::clock() - heuristic_start_time);
-        for (auto multi_source: multi_sources) {
+        for (auto multi_source : multi_sources) {
             run_boa_star(adjecency_matrix, multi_source, target, heuristic, heuristic_duration);
         }
     }
@@ -91,7 +107,7 @@ void ExperimentUtils::single_run(AdjacencyMatrix& adjecency_matrix,
             ShortestPathHeuristicComputer::compute_ideal_point_heuristic(
                 target, adjecency_matrix);
         auto heuristic_duration = static_cast<long>(std::clock() - start_time);
-        for (auto multi_source: multi_sources) {
+        for (auto multi_source : multi_sources) {
             run_apex(adjecency_matrix, multi_source, target, eps, heuristic, heuristic_duration);
         }
     }
@@ -117,22 +133,26 @@ void ExperimentUtils::single_run(AdjacencyMatrix& adjecency_matrix,
             Heuristic blind_heuristic = [](size_t vertex) -> std::vector<float> {
                 return {0, 0};
             };
-            auto backward_search = BackwardSearch(adjecency_matrix, eps);
+            Heuristic source_to_target =
+                ShortestPathHeuristicComputer::compute_ideal_point_heuristic(
+                    target, adjecency_matrix);
+            auto edge_based_backward_search = EdgeBasedBackwardSearch(adjecency_matrix);
             // See that in order to compute the mvh for forward search, the source is
             // actually the target of the backward search and the target is actually the
             // source!
             MultiValuedHeuristic mvh =
-                backward_search(target, source, blind_heuristic, blind_heuristic, global_stop_condition);
+                edge_based_backward_search(target, source, blind_heuristic, source_to_target, global_stop_condition);
 
             if (multi_sources.size() != 0) {
                 for (auto multi_source : multi_sources) {
-                    run_forward_search(adjecency_matrix, multi_source, target, eps, mvh, backward_search.runtime,
+                    run_forward_search(adjecency_matrix, multi_source, target, eps, mvh,
+                                       edge_based_backward_search.runtime,
                                        0, 0);
                 }
             }
             else {
-                run_backward_search(adjecency_matrix, source, target, eps, blind_heuristic,
-                                    blind_heuristic, global_stop_condition);
+                run_edge_based_backward_search(adjecency_matrix, target, source, blind_heuristic,
+                                               blind_heuristic, global_stop_condition);
             }
         }
         else {
@@ -150,15 +170,32 @@ void ExperimentUtils::single_run(AdjacencyMatrix& adjecency_matrix,
                 ShortestPathHeuristicComputer::compute_ideal_point_heuristic(
                     source, adjecency_matrix);
             auto target_heuristic_runtime = static_cast<float>(std::clock() - start_time);
-            auto backward_search = BackwardSearch(adjecency_matrix, eps);
+            auto edge_based_backward_search = EdgeBasedBackwardSearch(adjecency_matrix);
             // See that in order to compute the mvh for forward search, the source is
             // actually the target of the backward search and the target is actually the
             // source!
             MultiValuedHeuristic mvh =
-                backward_search(target, source, target_to_source, source_to_target);
+                edge_based_backward_search(target, source, target_to_source, source_to_target);
 
-            run_forward_search(adjecency_matrix, source, target, eps, mvh, backward_search.runtime,
+            run_forward_search(adjecency_matrix, source, target, eps, mvh, edge_based_backward_search.runtime,
                                source_heuristic_runtime, target_heuristic_runtime);
+        }
+    }
+    else if (algorithm == "EBBS") {
+        if (global_stop_condition == false) {
+            Heuristic blind_heuristic = [](size_t vertex) -> std::vector<float> {
+                return {0, 0};
+            };
+            run_backward_search(adjecency_matrix, source, target, eps, blind_heuristic,
+                                blind_heuristic, global_stop_condition);
+        }
+        else {
+            Heuristic source_to_target =
+                ShortestPathHeuristicComputer::compute_ideal_point_heuristic(target, adjecency_matrix);
+            Heuristic target_to_source =
+                ShortestPathHeuristicComputer::compute_ideal_point_heuristic(source, adjecency_matrix);
+            run_backward_search(adjecency_matrix, source, target, eps, source_to_target,
+                                target_to_source, global_stop_condition);
         }
     }
     else {

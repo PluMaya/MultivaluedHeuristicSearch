@@ -17,7 +17,9 @@ include_directories("include")
 file(GLOB_RECURSE SRC_FILES "src/*.cpp" "src/**/*.cpp" "include/**/*.h" "include/*.h")
 file(GLOB_RECURSE TEST_FILES "tests/*.cpp")
 
-add_executable(MultivaluedHeuristicSearch ${SRC_FILES})
+add_executable(MultivaluedHeuristicSearch ${SRC_FILES}
+        include/multivalued_heuristic/edge_based_backward_search.h
+        src/multivalued_heuristic/edge_based_backward_search.cpp)
 
 # Test executable
 add_executable(RunAllTests ${TEST_FILES})
