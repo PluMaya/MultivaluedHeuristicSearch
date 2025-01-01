@@ -14,29 +14,58 @@ using ApexSolutionSet = std::vector<ApexPathPairPtr>;
 
 class ApexSearch : public AbstractSolver {
 public:
-  std::vector<float> min_g2;
-  std::vector<std::vector<ApexPathPairPtr>> expanded;
-  ApexPathPairPtr last_solution = nullptr;
+    static bool is_weakly_dominated(const std::vector<float>& v1, const std::vector<float>& v2) {
+        // returns true if v1 is weakly dominated v2
+        for (int i = 0; i < v1.size(); i++) {
+            if (v1[i] < v2[i]) {
+                // it is enough to have one entry that is lower than the other
+                return false;
+            }
+        }
+        return true;
+    }
 
-  std::string get_solver_name() override { return "A*pex"; }
+    static bool is_strongly_dominated(const std::vector<float>& v1, const std::vector<float>& v2) {
+        // returns true if v1 is weakly dominated v2
+        for (int i = 0; i < v1.size(); i++) {
+            if (v1[i] < v2[i]) {
+                // it is enough to have one entry that is lower than the other
+                return false;
+            }
+        }
+        if (v1 == v2) {
+            return false;
+        }
+        return true;
+    }
 
-  void operator()(const size_t &source, const size_t &target, const Heuristic &heuristic,
-                  SolutionSet &solutions, unsigned int time_limit) override;
+    std::vector<float> min_g2;
+    std::vector<std::vector<ApexPathPairPtr>> expanded;
+    ApexPathPairPtr last_solution = nullptr;
 
-  virtual void insert(ApexPathPairPtr &ap, MapQueue &queue);
-  bool is_dominated(const ApexPathPairPtr &ap) const;
-  bool local_dominance_check(const ApexPathPairPtr &ap) const {
-    return (ap->apex->g[1] >= min_g2[ap->id]);
-  }
-  bool global_dominance_check(const ApexPathPairPtr &ap) const;
-  void merge_to_solutions(const ApexPathPairPtr &ap,
-                          ApexSolutionSet &solutions);
-  ApexSearch(const AdjacencyMatrix &adj_matrix, const EPS &eps);
-  void set_min_g2(const ApexPathPairPtr &ap) {
-    assert(ap->apex->g[1] < min_g2[ap->id]);
-    min_g2[ap->id] = ap->apex->g[1];
-  }
-  void init_search() override;
+    std::string get_solver_name() override { return "A*pex"; }
+
+    void operator()(const size_t& source, const size_t& target, const Heuristic& heuristic,
+                    SolutionSet& solutions, unsigned int time_limit) override;
+
+    virtual void insert(ApexPathPairPtr& ap, MapQueue& queue);
+    bool is_dominated(const ApexPathPairPtr& ap) const;
+
+    bool local_dominance_check(const ApexPathPairPtr& ap) const {
+        return (ap->apex->g[1] >= min_g2[ap->id]);
+    }
+
+    bool global_dominance_check(const ApexPathPairPtr& ap) const;
+    void merge_to_solutions(const ApexPathPairPtr& ap,
+                            ApexSolutionSet& solutions);
+    ApexSearch(const AdjacencyMatrix& adj_matrix, const EPS& eps);
+
+    void set_min_g2(const ApexPathPairPtr& ap) {
+        assert(ap->apex->g[1] < min_g2[ap->id]);
+        min_g2[ap->id] = ap->apex->g[1];
+    }
+
+    void init_search() override;
 };
 
 #endif // APEX_H

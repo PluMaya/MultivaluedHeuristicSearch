@@ -19,10 +19,15 @@ file(GLOB_RECURSE TEST_FILES "tests/*.cpp")
 
 add_executable(MultivaluedHeuristicSearch ${SRC_FILES}
         include/multivalued_heuristic/edge_based_backward_search.h
-        src/multivalued_heuristic/edge_based_backward_search.cpp)
+        src/multivalued_heuristic/edge_based_backward_search.cpp
+        src/temporary_test.cpp
+        include/multivalued_heuristic/multi_objective_forward_search.h
+        src/multivalued_heuristic/multi_objective_forward_search.cpp)
 
 # Test executable
-add_executable(RunAllTests ${TEST_FILES})
+add_executable(RunAllTests ${TEST_FILES}
+        tests/multivalued_heuristic/test_multi_objective_backward_search.cpp
+        tests/multivalued_heuristic/test_multi_objective_forward_search.cpp)
 
 # Link Boost libraries
 target_link_libraries(MultivaluedHeuristicSearch ${Boost_LIBRARIES})

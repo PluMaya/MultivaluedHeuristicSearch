@@ -43,8 +43,7 @@ public:
 struct CompareNodeByFValue {
   bool operator()(const NodePtr& a, const NodePtr& b) const {
 
-    return std::lexicographical_compare(b->f.begin(), b->f.end(),
-                                        a->f.begin(), a->f.end());
+    return a->f > b->f;
   }
 };
 

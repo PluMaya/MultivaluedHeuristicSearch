@@ -16,8 +16,8 @@ bool is_bounded(const NodePtr &apex, const NodePtr &node, const EPS &eps) {
 ApexPathPair::ApexPathPair(const ApexPathPairPtr &parent, const Edge &edge,
                            const std::vector<float> &h)
     : id(edge.target), h(h) {
-  std::vector<float> new_apex_g(parent->apex->g);
-  std::vector<float> new_g(parent->path_node->g);
+  std::vector new_apex_g(parent->apex->g);
+  std::vector new_g(parent->path_node->g);
 
   for (int i = 0; i < new_apex_g.size(); i++) {
     new_apex_g[i] += edge.cost[i];
@@ -34,29 +34,41 @@ bool ApexPathPair::update_nodes_by_merge_if_bounded(
     return false;
   }
 
-  std::vector f_value = {std::min(apex->f[0], other->apex->f[0]), std::min(apex->f[1], other->apex->f[1])};
-
-  // apex is not bunded
-  if (path_node->f[0] > (1 + eps[0]) * f_value[0] or path_node->f[1] > (1 + eps[1]) * f_value[1]) {
-    return false;
+  std::vector<float> f_value(apex->f.size());
+  for (int i = 0; i < apex->f.size(); i++) {
+    f_value[i] = std::min(apex->f[i], other->apex->f[i]);
   }
 
-  this->apex->g = {std::min(apex->g[0], other->apex->g[0]), std::min(apex->g[1], other->apex->g[1])};
-  this->apex->f = {std::min(apex->f[0], other->apex->f[0]), std::min(apex->f[1], other->apex->f[1])};
+  for (int i = 0; i < path_node->f.size(); i++) {
+    if (path_node->f[i] > (1 + eps[i]) * f_value[i]) {
+      return false;
+    }
+  }
+
+  for (int i = 0; i < apex->g.size(); i++) {
+    apex->g[i] = std::min(apex->g[i], other->apex->g[i]);
+    apex->f[i] = std::min(apex->f[i], other->apex->f[i]);
+  }
   return true;
 }
 
 bool ApexPathPair::update_apex_by_merge_if_bounded(
     const NodePtr &other_apex, const std::vector<double> &eps) {
-  std::vector<float> f = {std::min(apex->f[0], other_apex->f[0]),
-            std::min(apex->f[1], other_apex->f[1])};
-  if (path_node->f[0] > (1 + eps[0]) * f[0] or path_node->f[1] > (1 + eps[1]) * f[1]) {
-    return false;
+  std::vector<float> f(apex->f.size());
+  for (int i = 0; i < apex->f.size(); i++) {
+    f[i] = std::min(apex->f[i], other_apex->f[i]);
+  }
+
+  for (int i = 0; i < path_node->f.size(); i++) {
+    if (path_node->f[i] > (1 + eps[i]) * f[i]) {
+      return false;
+    }
   }
 
   apex->f = f;
-  apex->g = {std::min(apex->g[0], other_apex->g[0]),
-            std::min(apex->g[1], other_apex->g[1])};
+  for (int i = 0; i < apex->g.size(); i++) {
+    apex->g[i] = std::min(apex->g[i], other_apex->g[i]);
+  }
   return true;
 }
 
