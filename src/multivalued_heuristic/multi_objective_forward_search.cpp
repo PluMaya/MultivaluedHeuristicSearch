@@ -168,27 +168,6 @@ void MultiObjectiveForwardSearch::operator()(
 
         closed[node->id].insert(node);
         update_closed_dr(node);
-        // update_closed(node);
-        /**
-        std::cout << node->id << ": ";
-        for (auto node: closed[node->id]) {
-            std::cout << "(";
-            for (auto i: node->g) {
-                std::cout << i << ", ";
-            }
-            std::cout << "), ";
-        }
-        std::cout << std::endl;
-        std::cout << node->id << ": ";
-        for (auto value: closed_dr[node->id]) {
-            std::cout << "(";
-            for (auto i: value) {
-                std::cout << i << ", ";
-            }
-            std::cout << "), ";
-        }
-        std::cout << std::endl;
-        **/
 
         const std::vector<Edge>& outgoing_edges = adj_matrix[node->id];
 

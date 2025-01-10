@@ -32,23 +32,6 @@ bool MultiObjectiveBackwardSearch::local_dominance_check(const ApexPathPairPtr& 
     return false;
 }
 
-bool MultiObjectiveBackwardSearch::global_dominance_check(const ApexPathPairPtr& ap,
-                                                          std::vector<ApexPathPairPtr> solutions)
-const {
-    if (global_stop_condition == false) {
-        return false;
-    }
-    if (solutions.empty()) {
-        return false;
-    }
-    for (const auto& solution : solutions) {
-        if (solution->update_apex_by_merge_if_bounded(ap->apex, eps)) {
-            return true;
-        }
-    }
-    return false;
-}
-
 MultiObjectiveBackwardSearch::MultiObjectiveBackwardSearch(const AdjacencyMatrix& adj_matrix, EPS eps) :
     adj_matrix(adj_matrix), eps(std::move(eps)) {
     closed_dr.resize(adj_matrix.size() + 1);
@@ -129,9 +112,8 @@ MultiValuedHeuristic
 MultiObjectiveBackwardSearch::operator()(const size_t& source, const size_t& target,
                                          const Heuristic& heuristic_to_target,
                                          const Heuristic& heuristic_to_source,
-                                         bool global_stop_condition) {
+                                         const std::vector<float>& upper_bound) {
     start_time = std::clock();
-    this->global_stop_condition = global_stop_condition;
 
     BackwardSearchSolutionSet frontiers;
 
@@ -151,7 +133,7 @@ MultiObjectiveBackwardSearch::operator()(const size_t& source, const size_t& tar
         if (ap->is_active == false) {
             continue;
         }
-        if (local_dominance_check(ap) or global_dominance_check(ap, solutions)) {
+        if (local_dominance_check(ap) or !ApexSearch::is_weakly_dominated(upper_bound, ap->apex->g)) {
             continue;
         }
 
@@ -160,16 +142,11 @@ MultiObjectiveBackwardSearch::operator()(const size_t& source, const size_t& tar
 
         num_expansion += 1;
 
-        if (global_stop_condition == true and ap->id == target) {
-            solutions.push_back(ap);
-            continue;
-        }
-
         const std::vector<Edge>& outgoing_edges = adj_matrix[ap->id];
         for (const auto& outgoing_edge : outgoing_edges) {
             ApexPathPairPtr next_ap = std::make_shared<ApexPathPair>(
                 ap, outgoing_edge, heuristic_to_target(outgoing_edge.target));
-            if (local_dominance_check(next_ap) or global_dominance_check(next_ap, solutions)) {
+            if (local_dominance_check(next_ap) or !ApexSearch::is_weakly_dominated(upper_bound, next_ap->apex->g)) {
                 continue;
             }
             insert(next_ap, open, eps);
@@ -179,10 +156,6 @@ MultiObjectiveBackwardSearch::operator()(const size_t& source, const size_t& tar
     std::vector<std::vector<std::vector<float>>> mvh_results(adj_matrix.size() + 1);
     for (size_t i = 0; i < adj_matrix.size() + 1; ++i) {
         mvh_results[i] = make_list_of_values(frontiers[i], heuristic_to_source(i));
-    }
-
-    for (const auto& solution : frontiers[target]) {
-        std::cout << solution->apex->f[0] << " " << solution->apex->f[1] << std::endl;
     }
 
     runtime = static_cast<float>(std::clock() - start_time);

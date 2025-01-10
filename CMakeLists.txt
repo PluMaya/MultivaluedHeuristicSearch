@@ -22,6 +22,7 @@ add_executable(MultivaluedHeuristicSearch ${SRC_FILES}
         src/multivalued_heuristic/edge_based_backward_search.cpp
         src/temporary_test.cpp
         include/multivalued_heuristic/multi_objective_forward_search.h
+        src/multivalued_heuristic/multi_objective_forward_search.cpp
         src/multivalued_heuristic/multi_objective_forward_search.cpp)
 
 # Test executable

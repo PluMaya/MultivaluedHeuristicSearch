@@ -17,7 +17,6 @@ class MultiObjectiveBackwardSearch {
 public:
     const AdjacencyMatrix& adj_matrix;
     std::clock_t start_time = std::clock();
-    bool global_stop_condition{};
     EPS eps;
     size_t num_expansion = 0;
     size_t num_generation = 0;
@@ -30,11 +29,10 @@ public:
     MultiValuedHeuristic operator()(const size_t& source, const size_t& target,
                                     const Heuristic& heuristic_to_target,
                                     const Heuristic& heuristic_to_source,
-                                    bool global_stop_condition = true);
+                                    const std::vector<float>& upper_bound);
     virtual ~MultiObjectiveBackwardSearch() = default;
 
     [[nodiscard]] bool local_dominance_check(const ApexPathPairPtr& ap) const;
-    [[nodiscard]] bool global_dominance_check(const ApexPathPairPtr& ap, std::vector<ApexPathPairPtr> solutions) const;
 
     MultiObjectiveBackwardSearch(const AdjacencyMatrix& adj_matrix, EPS eps);
 

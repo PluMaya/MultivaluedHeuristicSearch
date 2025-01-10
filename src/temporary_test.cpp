@@ -11,9 +11,9 @@
 
 auto parser = MultiObjectiveParser(
     R"(/mnt/c/Users/crl/CLionProjects/MultivaluedHeuristicSearch/resources/MNY/NY-road-d-t-l.txt)");
-int num_objectives = 2;
+int num_objectives = 3;
 auto adjecency_matrix = parser.parse_graph(num_objectives);
-float eps = 0.01;
+float eps = 0.1;
 const size_t source = 83688;
 const size_t target = 146074;
 
@@ -26,6 +26,15 @@ void test_multi_objective_forward_search_doesnt_crash() {
     Heuristic target_heuristic = ShortestPathHeuristicComputer::compute_ideal_point_heuristic(
         target, adjecency_matrix);
 
+	UpperBoundHeuristic target_heuristic_with_bound = ShortestPathHeuristicComputer::compute_ideal_point_heuristic_with_bound(
+        target, adjecency_matrix);
+	auto general_upper_bound = target_heuristic_with_bound(source);
+	std::vector<float> bound = std::vector<float>(num_objectives, 0);
+	for (int i = 0; i < num_objectives; i++) {
+		for (int j = 0; j < num_objectives; j++) {
+	        bound[i] = std::max(bound[i], general_upper_bound[j][i]);
+        }
+	}
     std::cout << "finished creating heuristic" << std::endl;
     // auto bs = BackwardSearch(adjecency_matrix, EPS(num_objectives, eps));
     // auto bs_result = bs(source, target, target_heuristic, source_heuristic,
@@ -35,8 +44,7 @@ void test_multi_objective_forward_search_doesnt_crash() {
     // std::cout << "num generations " << bs.num_generation << std::endl;
 
     auto mo_bs = MultiObjectiveBackwardSearch(adjecency_matrix, EPS(num_objectives, eps));
-    auto result = mo_bs(source, target, target_heuristic, source_heuristic,
-                        true);
+    auto result = mo_bs(source, target, target_heuristic, source_heuristic, bound);
     std::cout << "total time: " << mo_bs.runtime << std::endl;
     std::cout << "num expansions: " << mo_bs.num_expansion << std::endl;
     std::cout << "num generations " << mo_bs.num_generation << std::endl;
@@ -76,13 +84,13 @@ void test_namoa_doesnt_crash() {
 
   std::cout << "finished running NAMOAdr" << std::endl;
   std::cout << "found " << solutions.size() << " solutions" << std::endl;
-  // for (const auto& sol: solutions) {
-  //   std::cout << "g=(";
-  //   for (int i = 0; i < sol->g.size(); i++) {
-  //     std::cout << sol->g[i] << ",";
-  //   }
-  //   std::cout << ")" << std::endl;
-  // }
+  for (const auto& sol: solutions) {
+    std::cout << "g=(";
+    for (int i = 0; i < sol->g.size(); i++) {
+      std::cout << sol->g[i] << ",";
+    }
+    std::cout << ")" << std::endl;
+  }
 }
 
 
