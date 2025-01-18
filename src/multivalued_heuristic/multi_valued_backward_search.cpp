@@ -2,6 +2,7 @@
 // Created by crl on 22/07/2024.
 //
 
+#include <fstream>
 #include <iostream>
 #include <multivalued_heuristic/multi_objective_backward_search.h>
 
@@ -41,45 +42,45 @@ std::vector<std::vector<float>>
 MultiObjectiveBackwardSearch::make_list_of_values(const ApexSolutionSet& apex_solution_set,
                                                   const std::vector<float>& heuristic_value) const {
     std::vector<std::vector<float>> result = {};
-    if (apex_solution_set.empty() || apex_solution_set.size() == 1) {
-        result.push_back(heuristic_value);
+    if (apex_solution_set.empty()) {
+        return result;
     }
-    else {
-        // Perform stair operations on the result
-        std::vector min_objective_values(adj_matrix.num_of_objectives, std::numeric_limits<float>::max());
-        for (const auto& apex_solution : apex_solution_set) {
-            for (size_t i = 0; i < min_objective_values.size(); ++i) {
-                min_objective_values[i] = std::min(min_objective_values[i],
-                                                   apex_solution->apex->f[i] - apex_solution->apex->h[i]);
-            }
-        }
-        if (adj_matrix.num_of_objectives == 2) {
-            for (int k = 0; k < apex_solution_set.size() - 1; k++) {
-                std::vector<float> fixed_solution = std::vector<float>(adj_matrix.num_of_objectives, 0);
-                fixed_solution[0] = apex_solution_set[k]->apex->f[0] - apex_solution_set[k]->apex->h[0];
-                fixed_solution[1] = apex_solution_set[k + 1]->apex->f[1] - apex_solution_set[k + 1]->apex->h[1];
-
-                for (int i = 0; i < adj_matrix.num_of_objectives; i++) {
-                    if (fixed_solution[i] == min_objective_values[i]) {
-                        fixed_solution[i] = heuristic_value[i];
-                    }
-                }
-                result.push_back(fixed_solution);
-            }
-
-        }
-        for (const auto& apex_solution : apex_solution_set) {
+    
+    // Perform stair operations on the result
+    // std::vector min_objective_values(adj_matrix.num_of_objectives, std::numeric_limits<float>::max());
+    // for (const auto& apex_solution : apex_solution_set) {
+    //     for (size_t i = 0; i < min_objective_values.size(); ++i) {
+    //         min_objective_values[i] = std::min(min_objective_values[i],
+    //                                            apex_solution->apex->f[i] - apex_solution->apex->h[i]);
+    //     }
+    // }
+    if (adj_matrix.num_of_objectives == 2) {
+        for (int k = 0; k < apex_solution_set.size() - 1; k++) {
             std::vector<float> fixed_solution = std::vector<float>(adj_matrix.num_of_objectives, 0);
-            for (int i = 0; i < adj_matrix.num_of_objectives; i++) {
-                fixed_solution[i] = apex_solution->apex->f[i] - apex_solution->apex->h[i];
-            }
-            for (int i = 0; i < adj_matrix.num_of_objectives; i++) {
-                if (fixed_solution[i] == min_objective_values[i]) {
-                    fixed_solution[i] = heuristic_value[i];
-                }
-            }
+            fixed_solution[0] = apex_solution_set[k]->apex->f[0] - apex_solution_set[k]->apex->h[0];
+            fixed_solution[1] = apex_solution_set[k + 1]->apex->f[1] - apex_solution_set[k + 1]->apex->h[1];
+
+            // for (int i = 0; i < adj_matrix.num_of_objectives; i++) {
+            //     if (fixed_solution[i] == min_objective_values[i]) {
+            //         fixed_solution[i] = heuristic_value[i];
+            //     }
+            // }
             result.push_back(fixed_solution);
         }
+
+    }
+    for (const auto& apex_solution : apex_solution_set) {
+        std::vector<float> fixed_solution = std::vector<float>(adj_matrix.num_of_objectives, 0);
+        for (int i = 0; i < adj_matrix.num_of_objectives; i++) {
+            fixed_solution[i] = apex_solution->apex->f[i] - apex_solution->apex->h[i];
+        }
+        // for (int i = 0; i < adj_matrix.num_of_objectives; i++) {
+        //     if (fixed_solution[i] == min_objective_values[i]) {
+        //         fixed_solution[i] = heuristic_value[i];
+        //     }
+        // }
+        result.push_back(fixed_solution);
+
     }
     return result;
 }
@@ -159,6 +160,23 @@ MultiObjectiveBackwardSearch::operator()(const size_t& source, const size_t& tar
     }
 
     runtime = static_cast<float>(std::clock() - start_time);
+
+
+    std::ofstream PlotOutput("mvh.txt");
+
+    for (int i = 1; i < adj_matrix.size() + 1; i++) {
+        for (const auto& it : mvh_results[i]) {
+            PlotOutput << i << " ";
+            for (const auto& it2 : it) {
+                PlotOutput << it2 << " ";
+            }
+            PlotOutput << std::endl;
+        }
+    }
+    // Close the file
+    PlotOutput.close();
+
+
 
     return mvh_results;
 }

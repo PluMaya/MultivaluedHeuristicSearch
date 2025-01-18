@@ -40,7 +40,12 @@ public:
     size_t start_time{};
     size_t num_expansion = 0;
     size_t num_generation = 0;
+    size_t dominance_check_dr = 0;
+    size_t dominance_check_full = 0;
+    size_t dominance_check_empty = 0;
     const AdjacencyMatrix& adj_matrix{};
+    std::vector<size_t> generated = {};
+    std::vector<size_t> expanded = {};
 
     std::unordered_map<std::string, std::chrono::duration<long long, std::ratio<1, 1000000000>>> time_map;
 
@@ -50,7 +55,7 @@ public:
 
     explicit MultiObjectiveForwardSearch(const AdjacencyMatrix& adj_matrix);
 
-    bool local_dominance_check(const NodePtr& node_ptr) const;
+    bool local_dominance_check(const NodePtr& node_ptr);
 
     bool global_dominance_check(const NodePtr& node_ptr,
                                 const size_t& target_id);

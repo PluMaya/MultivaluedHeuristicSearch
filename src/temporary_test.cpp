@@ -13,7 +13,7 @@ auto parser = MultiObjectiveParser(
     R"(/mnt/c/Users/crl/CLionProjects/MultivaluedHeuristicSearch/resources/MNY/NY-road-d-t-l.txt)");
 int num_objectives = 3;
 auto adjecency_matrix = parser.parse_graph(num_objectives);
-float eps = 0.1;
+float eps = 0.01;
 const size_t source = 83688;
 const size_t target = 146074;
 
@@ -84,13 +84,13 @@ void test_namoa_doesnt_crash() {
 
   std::cout << "finished running NAMOAdr" << std::endl;
   std::cout << "found " << solutions.size() << " solutions" << std::endl;
-  for (const auto& sol: solutions) {
-    std::cout << "g=(";
-    for (int i = 0; i < sol->g.size(); i++) {
-      std::cout << sol->g[i] << ",";
-    }
-    std::cout << ")" << std::endl;
-  }
+  // for (const auto& sol: solutions) {
+  //   std::cout << "g=(";
+  //   for (int i = 0; i < sol->g.size(); i++) {
+  //     std::cout << sol->g[i] << ",";
+  //   }
+  //   std::cout << ")" << std::endl;
+  // }
 }
 
 

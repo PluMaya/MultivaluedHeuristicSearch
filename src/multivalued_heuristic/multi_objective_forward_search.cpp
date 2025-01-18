@@ -41,10 +41,13 @@ void MultiObjectiveForwardSearch::update_closed(const NodePtr& node_ptr) {
 MultiObjectiveForwardSearch::MultiObjectiveForwardSearch(const AdjacencyMatrix& adj_matrix) : adj_matrix(adj_matrix) {
     closed.resize(adj_matrix.size() + 1);
     closed_dr.resize(adj_matrix.size() + 1);
+    generated.resize(adj_matrix.size() + 1, 0);
+    expanded.resize(adj_matrix.size() + 1, 0);
 }
 
-bool MultiObjectiveForwardSearch::local_dominance_check(const NodePtr& node_ptr) const {
+bool MultiObjectiveForwardSearch::local_dominance_check(const NodePtr& node_ptr) {
     if (closed[node_ptr->id].empty()) {
+        dominance_check_empty += 1;
         return false;
     }
     auto last_closed_node = closed[node_ptr->id].end();
@@ -53,6 +56,8 @@ bool MultiObjectiveForwardSearch::local_dominance_check(const NodePtr& node_ptr)
     if ((*last_closed_node)->g > node_ptr->g) {
         // if the last node in close is lexicographically greater than current
         // perfo rm dominance check without dr
+        dominance_check_full += 1;
+        return false;
         for (auto it = closed[node_ptr->id].begin(); it != closed[node_ptr->id].end(); it++) {
             if (ApexSearch::is_weakly_dominated(node_ptr->g, (*it)->g)) {
                 return true;
@@ -60,6 +65,7 @@ bool MultiObjectiveForwardSearch::local_dominance_check(const NodePtr& node_ptr)
         }
         return false;
     }
+    dominance_check_dr += 1;
     std::vector<float> truncated_value = std::vector(node_ptr->g.begin() + 1, node_ptr->g.end());
     for (auto it = closed_dr[node_ptr->id].begin(); it != closed_dr[node_ptr->id].end(); it++) {
         if (ApexSearch::is_weakly_dominated(truncated_value, (*it))) {
@@ -71,6 +77,7 @@ bool MultiObjectiveForwardSearch::local_dominance_check(const NodePtr& node_ptr)
 
 bool MultiObjectiveForwardSearch::global_dominance_check(const NodePtr& node_ptr, const size_t& target_id) {
     if (closed[target_id].empty()) {
+        dominance_check_empty += 1;
         return false;
     }
 
@@ -78,6 +85,8 @@ bool MultiObjectiveForwardSearch::global_dominance_check(const NodePtr& node_ptr
     last_closed_node--;
 
     if ((*last_closed_node)->f > node_ptr->f) {
+        dominance_check_full += 1;
+        return false;
         // if the last node in close is lexicographically greater than current
         // perform dominance check without dr
         for (auto it = closed[target_id].begin(); it != closed[target_id].end(); it++) {
@@ -87,6 +96,7 @@ bool MultiObjectiveForwardSearch::global_dominance_check(const NodePtr& node_ptr
         }
         return false;
     }
+    dominance_check_dr += 1;
 
     std::vector<float> truncated_node = std::vector(node_ptr->f.begin() + 1, node_ptr->f.end());
     for (const auto& other_node : closed_dr[target_id]) {
@@ -147,6 +157,7 @@ void MultiObjectiveForwardSearch::operator()(
         auto node = open.top();
         open.pop();
         num_generation += 1;
+        generated[node->id] += 1;
 
         if (local_dominance_check(node)) {
             continue;
@@ -165,6 +176,7 @@ void MultiObjectiveForwardSearch::operator()(
             continue;
         }
         num_expansion += 1;
+        expanded[node->id] += 1;
 
         closed[node->id].insert(node);
         update_closed_dr(node);
@@ -200,4 +212,17 @@ void MultiObjectiveForwardSearch::operator()(
     }
 
     runtime = std::clock() - start_time;
+
+
+    std::ofstream PlotOutput("multi_objective_forward_search.txt");
+
+    for (int i = 1; i < adj_matrix.size() + 1; i++) {
+        PlotOutput << i << "\t" << generated[i] << "\t" << expanded[i] << std::endl;
+    }
+
+    // Close the file
+    PlotOutput.close();
+
+
+    std::cout <<"dr: " << dominance_check_dr << " full: " << dominance_check_full << " empty: " << dominance_check_empty << std::endl;
 }
